@@ -60,8 +60,8 @@ class CPU_Scheduling_App:
         # Radio buttons for algorithm selection
         self.algo_var = tk.StringVar(value="FCFS")
         algos = [("First Come First Serve", "FCFS"), 
-                ("Shortest Job First (Non-preemptive)", "SJF"),
-                ("Priority Scheduling (Non-preemptive)", "Priority"),
+                ("Shortest Job First", "SJF"),
+                ("Priority Scheduling", "Priority"),
                 ("Round Robin", "RR")]
         for text, val in algos:
             ttk.Radiobutton(options_frame, text=text, value=val, variable=self.algo_var).pack(anchor="w", padx=10, pady=5)

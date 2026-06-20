@@ -144,7 +144,7 @@ class Scheduler:
                     i += 1
                 continue
                 
-            # take the process at front of the queue (like a real line, first in first out)
+            # take the process at front of the queue (since RR uses FIFO queue logic)
             idx = ready_queue.pop(0)
             p = processes[idx]
             
