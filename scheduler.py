@@ -50,7 +50,7 @@ class Scheduler:
             
         return processes, self.gantt_chart
         
-    def sjf(self, processes): # Non-preemptive
+    def sjf(self, processes): 
         self._reset_processes(processes)
         
         n = len(processes)
