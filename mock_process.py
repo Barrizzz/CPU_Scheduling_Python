@@ -1,5 +1,6 @@
 from process import Process
 
+# NOTE: for our implementation, the SMALLER the PRIORITY NUMBER the higher the priority of that process
 processes = {
     # No priority
     1: [

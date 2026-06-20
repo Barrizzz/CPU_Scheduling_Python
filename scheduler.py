@@ -103,6 +103,7 @@ class Scheduler:
                 
         return processes, self.gantt_chart
         
+    # NOTE: for our implementation, the SMALLER the PRIORITY NUMBER the higher the priority of that process
     def priority_scheduling(self, processes): 
         # It seems that priority scheduling algorithm is very similar to sjf
         # The only difference being that priority scheduling is based on the lowest number of priority first meanwhile sjf is on the burst time
