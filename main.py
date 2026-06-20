@@ -3,7 +3,8 @@ from tkinter import ttk, messagebox
 import copy
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from scheduler import Process, Scheduler
+from scheduler import Scheduler
+from process import Process
 from mock_process import processes
 
 class CPU_Scheduling_App:
@@ -18,7 +19,7 @@ class CPU_Scheduling_App:
         self.gantt_chart_data = []
         
         self._create_widgets()
-        
+
     # These GUI elements are created by the help of AI
     def _create_widgets(self):
         # Top Frame for Input
@@ -70,7 +71,7 @@ class CPU_Scheduling_App:
         self.ts_label.pack(pady=5, padx=10)
         self.ts_entry = ttk.Entry(options_frame, width=10)
         self.ts_entry.pack(pady=5, padx=10)
-        self.ts_entry.insert(0, "2")  # Default time slice
+        self.ts_entry.insert(0, "2")
 
         self.find_best_ts_btn = ttk.Button(options_frame, text="Find Best Time Slice", command=self.find_best_time_slice)
         self.find_best_ts_btn.pack(pady=5, padx=10, fill="x")    
@@ -202,7 +203,6 @@ class CPU_Scheduling_App:
             
         algo = self.algo_var.get()
         
-        import copy
         procs_copy = copy.deepcopy(self.processes)
         
         if algo == "FCFS":
@@ -232,7 +232,9 @@ class CPU_Scheduling_App:
         
         self.draw_gantt_chart()
         
+    # Drawing the gantt chart in the bottom frame using matplotlib
     def draw_gantt_chart(self):
+        # Get rid of the previous gantt chart/other charts
         for widget in self.bottom_frame.winfo_children():
             widget.destroy()
             
@@ -245,57 +247,69 @@ class CPU_Scheduling_App:
         pid_to_color = {}
         color_idx = 0
         
-        # Find max time
+        # Find max time, by doing a linear search through the gantt chart data and finding the max end time
         max_time = max(end for _, _, end in self.gantt_chart_data)
         
+        # For each process in the gantt chart data
         for pid, start, end in self.gantt_chart_data:
+            # Assign a unique color to each process
             if pid not in pid_to_color:
                 pid_to_color[pid] = colors[color_idx % len(colors)]
                 color_idx += 1
                 
+            # Then plot a horizontal bar for each process in the gantt chart
             ax.broken_barh([(start, end - start)], (10, 9), facecolors=(pid_to_color[pid]))
             ax.text(start + (end - start)/2, 14.5, pid, ha='center', va='center', color='black')
             
+        # Set the y-axis limits
         ax.set_ylim(5, 25)
+        # Set the x-axis limits
         ax.set_xlim(0, max_time + 1)
+        # Set the x-axis label
         ax.set_xlabel('Time')
+        # Set the y-axis ticks
         ax.set_yticks([])
+        # Add a grid to the x-axis
         ax.grid(True, axis='x', linestyle='--', alpha=0.7)
         
+        # Set the x-axis ticks to be at the start and end times of each process
         xticks = set()
         for _, start, end in self.gantt_chart_data:
             xticks.add(start)
             xticks.add(end)
         ax.set_xticks(sorted(list(xticks)))
         
+        # Adjust layout to prevent labels from overlapping
         plt.tight_layout()
         
+        # Make use of FigureCanvasTkAgg to display the gantt chart in the bottom frame
         canvas = FigureCanvasTkAgg(fig, master=self.bottom_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(fill="both", expand=True)
+
+        plt.close(fig)
         
     def compare_all(self):
         if not self.processes:
             messagebox.showwarning("Warning", "Please add processes first!")
             return
-            
-        import copy
         
         results = {}
         
+        # Try to get time slice from input, otherwise default to 2
         try:
             ts = int(self.ts_entry.get())
         except ValueError:
-            ts = 2 # Default fallback
+            ts = 2
             
-        # FCFS
+        # First Come First Serve
         procs_fcfs, _ = self.scheduler.fcfs(copy.deepcopy(self.processes))
         results['FCFS'] = {
             'Avg WT': sum(p.waiting_time for p in procs_fcfs) / len(procs_fcfs),
             'Avg TAT': sum(p.turnaround_time for p in procs_fcfs) / len(procs_fcfs)
         }
         
-        # SJF
+        # Shortest Job First
         procs_sjf, _ = self.scheduler.sjf(copy.deepcopy(self.processes))
         results['SJF'] = {
             'Avg WT': sum(p.waiting_time for p in procs_sjf) / len(procs_sjf),
@@ -309,7 +323,7 @@ class CPU_Scheduling_App:
             'Avg TAT': sum(p.turnaround_time for p in procs_prio) / len(procs_prio)
         }
         
-        # RR
+        # Round Robin
         procs_rr, _ = self.scheduler.round_robin(copy.deepcopy(self.processes), ts)
         results['RR'] = {
             'Avg WT': sum(p.waiting_time for p in procs_rr) / len(procs_rr),
@@ -349,6 +363,8 @@ class CPU_Scheduling_App:
         canvas = FigureCanvasTkAgg(fig, master=self.bottom_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(fill="both", expand=True)
+
+        plt.clost(fig)
 
 if __name__ == "__main__":
     root = tk.Tk()
