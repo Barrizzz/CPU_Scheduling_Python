@@ -108,6 +108,7 @@ class CPU_Scheduling_App:
         self.tree.column("pid", width=50)
         
         self.tree.pack(fill="both", expand=True)
+        self.tree.bind("<Delete>", self.delete_process)
         
         self.avg_label = ttk.Label(table_frame, text="Avg Turnaround Time: 0.0 | Avg Waiting Time: 0.0", font=("Arial", 11, "bold"))
         self.avg_label.pack(pady=5)
@@ -150,6 +151,18 @@ class CPU_Scheduling_App:
         self.priority_entry.delete(0, tk.END)
         self.priority_entry.insert(0, "0")
         
+    def delete_process(self, event=None):
+        selected_items = self.tree.selection()
+        if not selected_items:
+            return
+        for item in selected_items:
+            values = self.tree.item(item, "values")
+            pid = str(values[0])
+            # Remove from self.processes
+            self.processes = [p for p in self.processes if str(p.pid) != pid]
+            # Remove from treeview
+            self.tree.delete(item)
+
     def clear_processes(self):
         self.processes = []
         self.calculated_processes = []
